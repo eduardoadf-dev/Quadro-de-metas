@@ -89,7 +89,7 @@ function adicionarSonho(urlImagem, titulo) {
     id: crypto.randomUUID(),
     titulo: titulo,
     urlImagem: urlImagem,
-    status: 'sonho',
+    status: 'Sonho',
   };
 
   sonhos.push(novoSonho);

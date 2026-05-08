@@ -174,17 +174,17 @@ main {
   cursor: pointer;
 }
 
-.btn-status.sonho {
+.btn-status.Sonho {
   background: #f5f5f4;
   color: #57534e;
 }
 
-.btn-status.progresso {
+.btn-status.Progresso {
   background: #fef3c7;
   color: #b45309;
 }
 
-.btn-status.conquistado {
+.btn-status.Conquistado {
   background: #d1fae5;
   color: #047857;
 }
