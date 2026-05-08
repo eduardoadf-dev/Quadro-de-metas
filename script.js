@@ -119,12 +119,12 @@ function alternarStatus(id) {
   const sonho = sonhos.find(s => s.id === id);
 
   if (sonho) {
-    if (sonho.status === 'sonho') {
-      sonho.status = 'progresso';
-    } else if (sonho.status === 'progresso') {
-      sonho.status = 'conquistado';
+    if (sonho.status === 'Sonho') {
+      sonho.status = 'Progresso';
+    } else if (sonho.status === 'Progresso') {
+      sonho.status = 'Conquistado';
     } else {
-      sonho.status = 'sonho';
+      sonho.status = 'Sonho';
     }
 
     salvarSonhos(sonhos);
