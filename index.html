@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quadro das Metas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Quadro das Metas</h1>
+    <p>Visualize... Acredite e Conquiste.</p>
+  </header>
+
+  <!-- Formulário -->
+  <section class="form-container">
+    <form id="dream-form">
+      <input
+        type="url"
+        id="image-url"
+        placeholder="URL da imagem"
+        required
+      >
+      <input
+        type="text"
+        id="dream-title"
+        placeholder="Nome da meta"
+        required
+      >
+      <button type="submit">Adicionar</button>
+    </form>
+  </section>
+
+  <!-- Grid de Metas -->
+  <main>
+    <!-- Estado vazio -->
+    <div id="empty-state" class="estado-vazio hidden">
+      <p>Adicione sua primeira meta</p>
+    </div>
+
+    <!-- Grid dos cards -->
+    <div id="dreams-grid" class="grid-sonhos">
+      <!-- Cards via JavaScript -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p><b><i>DuDev</i></b></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
