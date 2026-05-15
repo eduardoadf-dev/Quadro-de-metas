@@ -115,8 +115,10 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 0.3s;
 }
 
+/* Classe aplicada via JS quando status = Conquistado */
 .card-imagem.conquistado img {
   opacity: 0.8;
 }
@@ -157,8 +159,10 @@ main {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 12px;
+  transition: color 0.3s, text-decoration 0.3s;
 }
 
+/* Classe aplicada via JS quando status = Conquistado */
 .card-conteudo h3.conquistado {
   text-decoration: line-through;
   color: #a8a29e;
@@ -172,6 +176,7 @@ main {
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
 .btn-status.Sonho {

@@ -9,40 +9,104 @@ const gridSonhos = document.getElementById('dreams-grid');
 const estadoVazio = document.getElementById('empty-state');
 
 // ===========================================
-// 2. CRIAR O CARD DAS METAS (HTML)
+// 2. CAMADA DE STORAGE (ABSTRAÇÃO)
+// Centraliza o acesso ao localStorage.
+// Se futuramente quiser trocar para outro
+// mecanismo de persistência, basta alterar aqui.
+// ===========================================
+
+const CHAVE_STORAGE = 'meus-sonhos';
+
+const Storage = {
+  get() {
+    const dados = localStorage.getItem(CHAVE_STORAGE);
+    if (!dados) return [];
+    try {
+      return JSON.parse(dados);
+    } catch {
+      return [];
+    }
+  },
+  set(sonhos) {
+    localStorage.setItem(CHAVE_STORAGE, JSON.stringify(sonhos));
+  }
+};
+
+// ===========================================
+// 3. CRIAR O CARD DAS METAS
+// Usa createElement + textContent para evitar XSS.
+// Event listeners adicionados diretamente nos elementos,
+// sem usar onclick inline no innerHTML.
 // ===========================================
 
 function criarCardSonho(sonho) {
   const card = document.createElement('div');
   card.className = 'card';
 
-  card.innerHTML = `
-    <div class="card-imagem">
-      <img src="${sonho.urlImagem}" alt="${sonho.titulo}">
-      <button class="btn-remover" onclick="removerSonho('${sonho.id}')">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
+  // --- Imagem ---
+  const cardImagem = document.createElement('div');
+  cardImagem.className = 'card-imagem';
+  if (sonho.status === 'Conquistado') {
+    cardImagem.classList.add('conquistado');
+  }
 
-    <div class="card-conteudo">
-      <h3>${sonho.titulo}</h3>
-      <button class="btn-status ${sonho.status}" onclick="alternarStatus('${sonho.id}')">
-        ${sonho.status}
-      </button>
-    </div>
+  const img = document.createElement('img');
+  img.setAttribute('src', sonho.urlImagem);
+  img.setAttribute('alt', sonho.titulo); // Seguro: não interpreta HTML
+  // Tratamento de erro de imagem: exibe placeholder se URL for inválida
+  img.onerror = () => {
+    img.src = 'https://placehold.co/400x300?text=Imagem+não+encontrada';
+  };
+
+  // --- Botão Remover ---
+  const btnRemover = document.createElement('button');
+  btnRemover.className = 'btn-remover';
+  btnRemover.setAttribute('aria-label', 'Remover meta');
+
+  // SVG do ícone de fechar (seguro — não vem de input do usuário)
+  btnRemover.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
   `;
+  // Event listener sem onclick inline
+  btnRemover.addEventListener('click', () => removerSonho(sonho.id));
+
+  cardImagem.appendChild(img);
+  cardImagem.appendChild(btnRemover);
+
+  // --- Conteúdo do Card ---
+  const cardConteudo = document.createElement('div');
+  cardConteudo.className = 'card-conteudo';
+
+  const h3 = document.createElement('h3');
+  h3.textContent = sonho.titulo; // textContent previne XSS
+  if (sonho.status === 'Conquistado') {
+    h3.classList.add('conquistado');
+  }
+
+  const btnStatus = document.createElement('button');
+  btnStatus.className = `btn-status ${sonho.status}`;
+  btnStatus.textContent = sonho.status; // textContent previne XSS
+  // Event listener sem onclick inline
+  btnStatus.addEventListener('click', () => alternarStatus(sonho.id));
+
+  cardConteudo.appendChild(h3);
+  cardConteudo.appendChild(btnStatus);
+
+  // --- Montagem final do Card ---
+  card.appendChild(cardImagem);
+  card.appendChild(cardConteudo);
 
   return card;
 }
 
 // ===========================================
-// 3. RENDERIZAR METAS NA TELA
+// 4. RENDERIZAR METAS NA TELA
 // ===========================================
 
 function renderizarSonhos() {
-  const sonhos = carregarSonhos();
+  const sonhos = Storage.get();
 
   gridSonhos.innerHTML = '';
 
@@ -61,7 +125,7 @@ function renderizarSonhos() {
 }
 
 // ===========================================
-// 4. EVENTO DO FORMULÁRIO (ADICIONAR)
+// 5. EVENTO DO FORMULÁRIO (ADICIONAR)
 // ===========================================
 
 formulario.addEventListener('submit', (evento) => {
@@ -79,11 +143,11 @@ formulario.addEventListener('submit', (evento) => {
 });
 
 // ===========================================
-// 5. ADICIONAR UMA NOVA META
+// 6. ADICIONAR UMA NOVA META
 // ===========================================
 
 function adicionarSonho(urlImagem, titulo) {
-  const sonhos = carregarSonhos();
+  const sonhos = Storage.get();
 
   const novoSonho = {
     id: crypto.randomUUID(),
@@ -93,29 +157,31 @@ function adicionarSonho(urlImagem, titulo) {
   };
 
   sonhos.push(novoSonho);
-  salvarSonhos(sonhos);
+  Storage.set(sonhos);
   renderizarSonhos();
 }
 
 // ===========================================
-// 6. REMOVER META
+// 7. REMOVER META
 // ===========================================
 
 function removerSonho(id) {
   if (!confirm('Remover esta meta?')) return;
 
-  let sonhos = carregarSonhos();
+  let sonhos = Storage.get();
   sonhos = sonhos.filter(sonho => sonho.id !== id);
-  salvarSonhos(sonhos);
+  Storage.set(sonhos);
   renderizarSonhos();
 }
 
 // ===========================================
-// 7. ALTERNAR STATUS DA META
+// 8. ALTERNAR STATUS DA META
+// Também aplica/remove classes visuais de "Conquistado"
+// que existiam no CSS mas não eram usadas antes.
 // ===========================================
 
 function alternarStatus(id) {
-  const sonhos = carregarSonhos();
+  const sonhos = Storage.get();
   const sonho = sonhos.find(s => s.id === id);
 
   if (sonho) {
@@ -127,25 +193,9 @@ function alternarStatus(id) {
       sonho.status = 'Sonho';
     }
 
-    salvarSonhos(sonhos);
+    Storage.set(sonhos);
     renderizarSonhos();
   }
-}
-
-// ===========================================
-// 8. SALVAR NO LOCALSTORAGE
-// ===========================================
-
-const CHAVE_STORAGE = 'meus-sonhos';
-
-function salvarSonhos(sonhos) {
-  localStorage.setItem(CHAVE_STORAGE, JSON.stringify(sonhos));
-}
-
-function carregarSonhos() {
-  const dados = localStorage.getItem(CHAVE_STORAGE);
-  if (!dados) return [];
-  return JSON.parse(dados);
 }
 
 // ===========================================
